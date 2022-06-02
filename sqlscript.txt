@@ -1,0 +1,216 @@
+DROP DATABASE coviddb;
+CREATE DATABASE coviddb;
+CREATE TABLE Company(
+	CompanyName varchar(255) NOT NULL,
+    Address varchar(255) NOT NULL,
+    PRIMARY KEY (CompanyName) 
+);
+
+CREATE TABLE VaccinationSite(
+	VaccinationSiteName varchar(255) NOT NULL,
+    Address varchar(255) NOT NULL,
+    PRIMARY KEY (VaccinationSiteName)
+);
+
+CREATE TABLE Lot(
+	CompanyName varchar(255) NOT NULL,
+    LotNumber varchar(255) NOT NULL,
+    ProductionDate DATE NOT NULL,
+    ExpiryDate DATE NOT NULL,
+	NumOfDoses int NOT NULL,
+    VaccinationSiteName varchar(255) NOT NULL,
+    PRIMARY KEY (LotNumber),
+    FOREIGN KEY (CompanyName) REFERENCES Company(CompanyName),
+    FOREIGN KEY (VaccinationSiteName) REFERENCES VaccinationSite(VaccinationSiteName)
+);
+
+CREATE TABLE VaccinationDates(
+	VaccinationSiteName varchar(255) NOT NULL,
+    Vaccination_Dates DATE NOT NULL,
+    PRIMARY KEY(VaccinationSiteName,Vaccination_Dates),
+    FOREIGN KEY(VaccinationSiteName) REFERENCES VaccinationSite(VaccinationSiteName)
+);
+
+CREATE TABLE MedicalPractice(
+	MedicalPracticeName varchar(255) NOT NULL,
+    PhoneNumber varchar(255) NOT NULL,
+    PRIMARY KEY(MedicalPracticeName)
+);
+
+CREATE TABLE Doctor(
+ 	HealthCareID varchar(255) NOT NULL,
+    DoctorName varchar(255) NOT NULL,
+    MedicalPracticeName varchar(255) NOT NULL,
+    PRIMARY KEY(HealthCareID),
+    FOREIGN KEY(MedicalPracticeName) REFERENCES MedicalPractice(MedicalPracticeName)
+);
+
+CREATE TABLE DoctorCredentials(
+	HealthCareID varchar(255) NOT NULL,
+  	Credentials varchar(255) NOT NULL,
+    PRIMARY KEY (HealthCareID,Credentials),
+    FOREIGN KEY (HealthCareID) REFERENCES Doctor(HealthCareID)
+);
+    
+CREATE TABLE EmploysDoctors(
+ 	VaccinationSiteName varchar(255) NOT NULL,
+    HealthCareID varchar(255) NOT NULL,
+    PRIMARY KEY (VaccinationSiteName,HealthCareID),
+    FOREIGN KEY (VaccinationSiteName) REFERENCES VaccinationSite(VaccinationSiteName),
+    FOREIGN KEY (HealthCareID) REFERENCES Doctor(HealthCareID)
+);
+
+CREATE TABLE Spouse(
+  	Name varchar(255) NOT NULL, 	
+    OHIPNumber varchar(255) NOT NULL,
+    PRIMARY KEY (OHIPNumber)
+);
+
+CREATE TABLE Patient(
+	PatientName varchar(255) NOT NULL,
+    OHIPNumber varchar(255) NOT NULL,
+    PhoneNumber varchar(255) NOT NULL,
+    SpouseOHIPNumber varchar(255),
+    PRIMARY KEY (OHIPNumber),
+    FOREIGN KEY (SpouseOHIPNumber) REFERENCES Spouse(OHIPNumber) 
+);
+
+CREATE TABLE Vaccinates(
+  	LotNumber varchar(255) NOT NULL,
+    VaccineDate DATETIME NOT NULL,
+    VaccinationSiteName varchar(255) NOT NULL,
+    OHIPNumber varchar(255) NOT NULL,
+    PRIMARY KEY (OHIPNumber,VaccineDate),
+    FOREIGN KEY (OHIPNumber) REFERENCES Patient(OHIPNumber),
+    FOREIGN KEY (VaccinationSiteName) REFERENCES VaccinationSite(VaccinationSiteName)
+);
+
+CREATE TABLE Nurse(
+    HealthCareID varchar(255) NOT NULL,
+	NurseName varchar(255) NOT NULL,
+ 	PRIMARY KEY (HealthCareID)
+);
+
+CREATE TABLE NurseCredentials(
+  	HealthCareID varchar(255) NOT NULL,
+    Credentials varchar(255) NOT NULL,
+    PRIMARY KEY (HealthCareID,Credentials),
+    FOREIGN KEY (HealthCareID) REFERENCES Nurse(HealthCareID)
+);
+
+CREATE TABLE EmploysNurses(
+	HealthCareID varchar(255) NOT NULL,
+    VaccinationSiteName varchar(255) NOT NULL,
+    PRIMARY KEY (HealthCareID,VaccinationSiteName),
+    FOREIGN KEY (HealthCareID) REFERENCES Nurse(HealthCareID),
+    FOREIGN KEY (VaccinationSiteName) REFERENCES VaccinationSite(VaccinationSiteName)
+);
+
+INSERT INTO Company 
+VALUES ('Pfizer','1 Sesame St'),
+	   ('Moderna','2 Sesame St'),
+       ('JohnsonJohnson','3 Sesame St'),
+       ('Google','4 Sesame St'),
+       ('Amazon','5 Sesame St'),
+       ('Biotech','6 Sesame St');
+       
+INSERT INTO VaccinationSite
+VALUES ('MissisaugaCleanVaccines','1 Sauga St'),
+	   ('TorontoCleanVaccines','1 Toronto St'),
+       ('MarkhamCleanVaccines','1 Markham St'),
+       ('RHillCleanVaccines','1 RHill St'),
+       ('BramptonCleanVaccines','1 Brampton St'),
+       ('TBayCleanVaccines','1 Tbay St');
+       
+INSERT INTO Lot
+VALUES ('Pfizer','EY0578','2021-06-01','2021-07-01',1000,'MissisaugaCleanVaccines'),
+       ('Moderna','MT0062','2021-06-02','2021-07-02',1001,'TorontoCleanVaccines'),
+       ('JohnsonJohnson','AW08LD','2021-06-03','2021-07-03',1001,'MarkhamCleanVaccines'),
+       ('Google','4M28P3','2021-06-04','2021-07-04',1001,'BramptonCleanVaccines'),
+       ('Amazon','AM28YK','2021-06-05','2021-07-05',1001,'RHillCleanVaccines'),
+       ('Biotech','FCOEGK','2021-06-06','2021-07-06',1001,'TBayCleanVaccines'),
+       ('Moderna','5OE8LL','2021-06-07','2021-07-08',1001,'TorontoCleanVaccines');
+       
+INSERT INTO MedicalPractice
+VALUES ('GreatDocs','905-223-2353'),
+	   ('AppleDoctors','416-222-2314'),
+       ('HeliDoctors','456-456-3453'),
+       ('WaterDoctors','123-4234-341233'),
+       ('DocDocDoc','1343230432'),
+       ('Docktors','12414413');
+       
+INSERT INTO Doctor
+VALUES ('001','Arthur Gallaghan','GreatDocs'),
+	   ('002','John Smith','AppleDoctors'),
+       ('003','Jacinth Reginald','HeliDoctors'),
+       ('004','Noble Rylie','WaterDoctors'),
+       ('005','Timothy Sylvanus','DocDocDoc'),
+       ('006','Trix Leanna','Docktors');
+       
+INSERT INTO DoctorCredentials
+VALUES ('001','Medical Degree'),
+	   ('001','Bullet Removal'),
+       ('002','Medical Degree'),
+       ('003','Medical Degree'),
+       ('004','Medical Degree'),
+       ('005','Medical Degree'),
+       ('006','Medical Degree'),
+       ('002','Homeopathy');
+       
+INSERT INTO EmploysDoctors 
+VALUES ('MissisaugaCleanVaccines','001'),
+	   ('TorontoCleanVaccines','002'),
+       ('MarkhamCleanVaccines','003'),
+       ('RHillCleanVaccines','004'),
+       ('BramptonCleanVaccines','005'),
+       ('TBayCleanVaccines','006');
+       
+INSERT INTO Spouse 
+VALUES ('Jane Claud','00001'),
+	   ('Christy Jocelin','00002'),
+       ('Genette Lyle','00003');
+       
+INSERT INTO Patient 
+VALUES ('Mina Permelia', '00004', '123421414', '00001'),
+	   ('Farley Louise', '00005', '125135353', '00002'),
+       ('Myron Linford', '00006', '6436543543', NULL),
+       ('Logan Ernie', '00007', '6246245243', NULL),
+       ('Dyson Jaxon', '00008', '6426524524', '00003'),
+       ('Chad Ebad', '00009', '62321233', NULL);
+       
+INSERT INTO Vaccinates 
+VALUES ('EY0578','2021-06-06','MissisaugaCleanVaccines','00004'),
+	   ('MT0062','2021-06-09','TorontoCleanVaccines','00005'),
+       ('AW08LD','2021-06-10','MarkhamCleanVaccines','00006'),
+       ('4M28P3','2021-06-11','BramptonCleanVaccines','00007'),
+       ('FCOEGK','2021-06-15','RHillCleanVaccines','00008'),
+       ('5OE8LL','2021-07-01','TorontoCleanVaccines','00009');
+        
+INSERT INTO Nurse 
+VALUES ('007','Tianna Sandy'),
+	   ('008','Dolph Shanna'),
+       ('009','Briscoe Maureen'),
+       ('010','Mikki Arleen'),
+       ('011','Eliott Kathlyn'),
+       ('012','Eryn Delia'),
+       ('013','Stacee Darian');
+       
+INSERT INTO NurseCredentials 
+VALUES ('007','Bachelor Of Nursing'),
+	   ('008','Bachelor Of Nursing'),
+       ('009','Bachelor Of Nursing'),
+       ('010','Bachelor Of Nursing'),
+       ('011','Bachelor Of Nursing'),
+       ('012','Bachelor Of Nursing'),
+       ('013','Bachelor Of Nursing'),
+       ('007','Master Of Nursing'),
+       ('008','Nurse Surgery Certificate');
+
+INSERT INTO EmploysNurses
+VALUES ('007','MissisaugaCleanVaccines'),
+	   ('008','TorontoCleanVaccines'),
+       ('009','MarkhamCleanVaccines'),
+	   ('010','BramptonCleanVaccines'),
+       ('011','RHillCleanVaccines'),
+       ('012','TBayCleanVaccines'),
+       ('013','TorontoCleanVaccines');
